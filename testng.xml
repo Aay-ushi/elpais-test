@@ -1,0 +1,21 @@
+<suite name="ParallelSuite" parallel="tests" thread-count="5">
+    <test name="Chrome_Windows">
+        <parameter name="browserName" value="Chrome"/>
+        <parameter name="os" value="Windows"/>
+        <parameter name="osVersion" value="10"/>
+        <classes>
+            <class name="browserStackTest.OpinionSection"/>
+        </classes>
+    </test>
+
+    <test name="Safari_macOS">
+        <parameter name="browserName" value="Safari"/>
+        <parameter name="os" value="OS X"/>
+        <parameter name="osVersion" value="11"/>
+        <classes>
+            <class name="browserStackTest.OpinionSection"/>
+        </classes>
+    </test>
+
+    <!-- Add more tests here for different browsers/OS combinations -->
+</suite>
