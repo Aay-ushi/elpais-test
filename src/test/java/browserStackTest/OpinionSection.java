@@ -7,42 +7,60 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import browserStackTest.pages.Article;
+
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import java.time.Duration;
+
 
 public class OpinionSection extends BaseTest{
+
 
 	@Test
 	public void testOpinionArticle(){
 		WebDriver driver=getDriver();
-		driver.get(baseURL);
+		driver.get(baseURL+"/opinion");
+		driver.manage().window().maximize();
 		Assert.assertTrue(driver.findElement(By.xpath("//*[@id='edition_head' and @data-edition='el-pais']")).isDisplayed());
-		List<WebElement> opinionLinks = driver.findElements(By.xpath("//*[@data-dtm-region='portada_apertura']//a[contains(@href,'https://elpais.com/opinion/')]"));
+
+		List<WebElement> articles = driver.findElements(By.xpath("//article//header//h2//a[@href]"));
 		Set<String> articleLinks = new LinkedHashSet<>();
-		for (WebElement link : opinionLinks) {
-				String url = link.getAttribute("href");
-				if(url.isEmpty() || url.equalsIgnoreCase("https://elpais.com/opinion/")){
-					continue;
-				}
-				if (url.contains("/opinion/") && articleLinks.size() < 5 ) {
-						articleLinks.add(url);
-						driver.navigate().to(url);
-						printArticleTitleAndContent(driver);
-						driver.navigate().back();
-				}
+		for (WebElement article : articles) {
+			try{
+			String url=article.getAttribute("href");
+			if(articleLinks.contains(url)){
+				continue;
+			}
+			driver.navigate().to(url);
+			printArticleTitleAndContent(driver);
+			driver.navigate().back();
+			articleLinks.add(url);
+			}
+			catch(StaleElementReferenceException e){
+				continue;
+			}
+
+			
+			if(articleLinks.size()==5){
+				break;
+			}
 		}
 	}
 
 	public void printArticleTitleAndContent(WebDriver driver){
-		WebElement titleElement=driver.findElement(By.xpath("//*[@id='main-content']//h1"));
-		String title=titleElement.getText();
-		System.out.println(title);
-		WebElement bodyElement=driver.findElement(By.xpath("//*[@data-dtm-region='articulo_cuerpo']"));
-		String body=bodyElement.getText();
-		System.out.println(body);
+		
+		Article article=new Article(driver);
+		String title=article.getTitleElement().getText();
+		System.out.println("Title: " + title);
+		String body=article.getBodyElement().getText();
+		System.out.println("Body: "+ body);
 	}
 
 }
